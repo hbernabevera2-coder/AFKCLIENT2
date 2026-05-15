@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFK Manager Pro | Alting Client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ========== TODOS LOS ESTILOS ORIGINALES ========== */
+        :root {
+            --bg-base: #060608;
+            --bg-surface: #0e0e12;
+            --bg-card: #13131a;
+            --bg-elevated: #1c1c26;
+            --bg-input: #0a0a10;
+            --accent: #7c6af7;
+            --accent2: #a78bfa;
+            --accent-dim: rgba(124,106,247,0.12);
+            --accent-glow: rgba(124,106,247,0.35);
+            --green: #22d3a0;
+            --green-dim: rgba(34,211,160,0.12);
+            --red: #f04444;
+            --red-dim: rgba(240,68,68,0.12);
+            --yellow: #f59e0b;
+            --yellow-dim: rgba(245,158,11,0.12);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59,130,246,0.12);
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --border: #1e1e2a;
+            --border2: #2a2a3a;
+            --radius: 14px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: var(--bg-base);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+        #app-shell {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 240px;
+            min-width: 240px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+        .brand {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .brand-name {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .brand-sub {
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+        .nav-menu {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .nav-item {
+            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+        }
+        .nav-item.active {
+            background: var(--accent-dim);
+            color: var(--accent2);
+            border-color: rgba(124,106,247,0.25);
+        }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .status-text {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            background: rgba(13,13,18,0.9);
+            backdrop-filter: blur(12px);
+            z-index: 5;
+            flex-shrink: 0;
+        }
+        .header-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .page-section {
+            display: none;
+            padding: 28px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+            animation: fadeUp 0.3s ease forwards;
+        }
+        .page-section.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i {
+            color: var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+        .stat-icon-bg {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+        }
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.73rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-top: 4px;
+            line-height: 1;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #6c5ce7; transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(240,68,68,0.25); }
+        .btn-danger:hover { background: var(--red); color: white; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text); }
+        .btn-ghost:hover { background: var(--bg-elevated); }
+        .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,211,160,0.25); }
+        .btn-success:hover { background: var(--green); color: #000; }
+        .btn-icon {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .btn-icon:hover { background: var(--bg-elevated); color: var(--text); }
+        .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+        .input-group { margin-bottom: 16px; }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.3px;
+        }
+        input, select, textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-base);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            padding: 12px 16px;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-surface);
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        .mc-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            image-rendering: pixelated;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .badge-online { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,211,160,0.2); }
+        .badge-offline { background: var(--red-dim); color: var(--red); border: 1px solid rgba(240,68,68,0.2); }
+        .badge-connecting { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,158,11,0.2); }
+        .badge-ms { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+        .badge-proxy { background: var(--bg-elevated); color: var(--muted); border: 1px solid var(--border2); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; }
+
+        .terminal {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            height: 320px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+        .t-sys { color: var(--blue); }
+        .t-err { color: var(--red); }
+        .t-ok { color: var(--green); }
+        .t-msg { color: var(--text); }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            width: 560px;
+            max-width: 95vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.96) translateY(8px);
+            transition: transform 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+        .modal-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            padding: 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-footer {
+            padding: 16px 22px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--bg-surface);
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 310px;
+            transform: translateX(140%);
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-icon-wrap {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .toast-success .toast-icon-wrap { background: var(--green-dim); color: var(--green); }
+        .toast-error .toast-icon-wrap { background: var(--red-dim); color: var(--red); }
+        .toast-info .toast-icon-wrap { background: var(--blue-dim); color: var(--blue); }
+        .toast-warning .toast-icon-wrap { background: var(--yellow-dim); color: var(--yellow); }
+        .toast-title { font-weight: 700; font-size: 0.83rem; margin-bottom: 1px; }
+        .toast-msg { font-size: 0.75rem; color: var(--muted); }
+
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            background: var(--bg-elevated);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border2);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .offline-info {
+            margin-top: 10px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.8rem;
+            display: none;
+        }
+        .offline-info.show {
+            display: block;
+        }
+        .offline-badge {
+            display: inline-block;
+            background: var(--accent-dim);
+            color: var(--accent2);
+            border: 1px solid rgba(124,106,247,0.25);
+            border-radius: 8px;
+            padding: 2px 8px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.75rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 18px 0;
+        }
+        .toggle-chat-btn {
+            margin-left: 10px;
+        }
+
+        #waiting-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+        #waiting-modal .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #waiting-modal p {
+            font-size: 1.1rem;
+            color: var(--text);
+            max-width: 400px;
+            padding: 0 20px;
+        }
+        #waiting-modal small {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        /* Estilos para el inventario */
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        .inventory-table th, .inventory-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        .inventory-table th {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .inventory-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .inventory-item img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
+        .drop-item-btn {
+            background: var(--red-dim);
+            color: var(--red);
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+        .drop-item-btn:hover {
+            background: var(--red);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="fas fa-cubes"></i></div>
+            <div><div class="brand-name">Alting Client</div><div class="brand-sub" data-i18n="brand-sub">AFK Manager Pro</div></div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="nav('dashboard',this)"><i class="fas fa-chart-pie"></i><span data-i18n="nav-dashboard">Dashboard</span></div>
+            <div class="nav-item" onclick="nav('connect',this)"><i class="fas fa-bolt"></i><span data-i18n="nav-connect">Mass Connect</span></div>
+            <div class="nav-item" onclick="nav('accounts',this)"><i class="fas fa-users"></i><span data-i18n="nav-accounts">Cuentas</span></div>
+            <div class="nav-item" onclick="nav('proxies',this)"><i class="fas fa-network-wired"></i><span data-i18n="nav-proxies">Proxies</span></div>
+            <div class="nav-item" onclick="nav('chat',this)"><i class="fas fa-terminal"></i><span data-i18n="nav-chat">Commander</span></div>
+            <div class="nav-item" onclick="nav('settings',this)"><i class="fas fa-sliders-h"></i><span data-i18n="nav-settings">Ajustes</span></div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            <div class="status-text" data-i18n="status-text">Server Core Online</div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-title" id="page-title" data-i18n="dashboard-title">DASHBOARD</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button class="btn btn-primary btn-sm" onclick="nav('connect',document.querySelectorAll('.nav-item')[1])">
+                    <i class="fas fa-rocket"></i> <span data-i18n="launch-btn">Lanzar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard -->
+        <section id="sec-dashboard" class="page-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-accent" style="background:var(--accent);"></div>
+                    <div class="stat-icon-bg" style="background:var(--accent-dim);color:var(--accent);"><i class="fas fa-robot"></i></div>
+                    <div class="stat-label" data-i18n="stat-total-label">Total Bots</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-accent" style="background:var(--green);"></div>
+                    <div class="stat-icon-bg" style="background:var(--green-dim);color:var(--green);"><i class="fas fa-plug"></i></div>
+                    <div class="stat-label" data-i18n="stat-online-label">Online</div>
+                    <div class="stat-value" style="color:var(--green);" id="stat-online">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-accent" style="background:var(--blue);"></div>
+                    <div class="stat-icon-bg" style="background:var(--blue-dim);color:var(--blue);"><i class="fas fa-shield-alt"></i></div>
+                    <div class="stat-label" data-i18n="stat-proxies-label">Proxies</div>
+                    <div class="stat-value" style="color:var(--blue);" id="stat-proxies">0</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-list-ul"></i> <span data-i18n="active-sessions-title">Sesiones Activas</span></div>
+                    <button class="btn btn-danger btn-sm" onclick="stopAll()"><i class="fas fa-stop"></i> <span data-i18n="kill-all-btn">Kill All</span></button>
+                </div>
+
+                <!-- Nuevo: Control de seguimiento del dueño -->
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                    <div style="flex:1;min-width:200px;">
+                        <input type="text" id="owner-nick" placeholder="Nick del dueño" data-i18n-placeholder="owner-nick-placeholder" style="margin-bottom:0;">
+                    </div>
+                    <button class="btn btn-success btn-sm" onclick="followAllOwner()">
+                        <i class="fas fa-user-friends"></i> <span data-i18n="follow-all-btn">Seguir Dueño</span>
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="stopAllFollow()">
+                        <i class="fas fa-user-slash"></i> <span data-i18n="stop-follow-btn">Detener Seguimiento</span>
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <th data-i18n="table-avatar">Avatar</th>
+                            <th data-i18n="table-user">Usuario</th>
+                            <th data-i18n="table-auth">Auth</th>
+                            <th data-i18n="table-proxy">Proxy</th>
+                            <th data-i18n="table-status">Estado</th>
+                            <th style="text-align:right;" data-i18n="table-actions">Acciones</th>
+                        </thead>
+                        <tbody id="bot-list-ui"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mass Connect -->
+        <section id="sec-connect" class="page-section">
+            <div class="card" style="max-width:560px;margin:0 auto;">
+                <div class="card-title" style="margin-bottom:22px;font-size:1.05rem;">
+                    <i class="fas fa-bolt" style="color:var(--yellow);"></i>
+                    <span data-i18n="mass-connect-title">Conexión Masiva</span>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="server-ip-label">IP del Servidor</label>
+                    <input type="text" id="g-host" placeholder="mc.hypixel.net or lunarmc.cc" data-i18n-placeholder="server-ip-placeholder">
+                </div>
+                <div class="input-group">
+                    <label data-i18n="server-port-label">Puerto (opcional)</label>
+                    <input type="number" id="g-port" value="25565" placeholder="25565">
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label data-i18n="mc-version-label">Versión MC</label>
+                        <input type="text" id="g-ver" placeholder="Auto or 1.20.1" data-i18n-placeholder="mc-version-placeholder">
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="delay-label">Delay (ms)</label>
+                        <input type="number" id="g-delay" value="3500">
+                    </div>
+                </div>
+
+                <div class="switch-group">
+                    <label class="switch">
+                        <input type="checkbox" id="include-offline-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <label for="include-offline-switch" data-i18n="include-offline-label">Incluir cuentas offline</label>
+                </div>
+                <div id="offline-info" class="offline-info">
+                    <label data-i18n="offline-accounts-available">Cuentas offline disponibles:</label>
+                    <div id="offline-accounts-list"></div>
+                </div>
+
+                <div class="divider"></div>
+                <button class="btn btn-primary" onclick="startMassJoin()" style="width:100%;padding:14px;font-size:.95rem;">
+                    <i class="fas fa-rocket"></i> <span data-i18n="deploy-fleet-btn">Desplegar Flota</span>
+                </button>
+                <p style="text-align:center;font-size:.76rem;color:var(--muted);margin-top:12px;">
+                    <i class="fas fa-info-circle" style="color:var(--accent);"></i>
+                    <span data-i18n="mass-connect-info">Conecta cuentas Microsoft guardadas + (opcional) offline.</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Accounts -->
+        <section id="sec-accounts" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-users"></i> <span data-i18n="accounts-title">Base de Datos</span></div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="openAddOfflineModal()">
+                            <i class="fas fa-plus"></i> <span data-i18n="add-offline-btn">Offline</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="btn-add-microsoft" onclick="startMicrosoftAuth()">
+                            <i class="fab fa-microsoft"></i> <span data-i18n="add-microsoft-btn">Microsoft</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><th data-i18n="table-skin">Skin</th><th data-i18n="table-identifier">Identificador</th><th data-i18n="table-type">Tipo</th><th style="text-align:right;" data-i18n="table-action">Acción</th></thead>
+                        <tbody id="acc-list-ui"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Proxies -->
+        <section id="sec-proxies" class="page-section">
+            <div class="grid-2" style="align-items:start;">
+                <div class="card">
+                    <div class="card-title" style="margin-bottom:14px;"><i class="fas fa-code"></i> <span data-i18n="proxy-raw-title">Input Raw</span></div>
+                    <p style="font-size:.77rem;color:var(--muted);margin-bottom:12px;" data-i18n="proxy-format-hint">Formato: <code>ip:port</code> o <code>ip:port:user:pass</code> — uno por línea.</p>
+                    <textarea id="proxy-raw" rows="13" style="resize:vertical;" placeholder="192.168.1.1:8080&#10;10.0.0.1:1080:user:pass"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:14px;">
+                        <button class="btn btn-primary" onclick="saveProxies()" style="flex:1;"><i class="fas fa-save"></i> <span data-i18n="save-proxies-btn">Guardar</span></button>
+                        <button class="btn btn-danger btn-sm" onclick="clearAllProxies()"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title" style="margin-bottom:14px;"><i class="fas fa-check-circle" style="color:var(--green);"></i> <span data-i18n="parsed-list-title">Lista Parseada</span></div>
+                    <div class="table-wrap" style="max-height:400px;overflow-y:auto;">
+                        <table>
+                            <thead><th data-i18n="proxy-header">Proxy</th><th data-i18n="status-header">Estado</th></thead>
+                            <tbody id="proxy-parsed-ui"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Commander -->
+        <section id="sec-chat" class="page-section">
+            <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 130px);">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-terminal"></i> <span data-i18n="commander-title">Commander — Todos los Bots</span></div>
+                    <button id="toggle-server-msgs" class="btn btn-sm btn-ghost toggle-chat-btn">
+                        <i class="fas fa-comment-dots"></i> <span data-i18n="toggle-server-msgs">Mostrar mensajes del servidor</span>
+                    </button>
+                </div>
+                <div class="terminal" id="global-chat-box" style="flex:1;height:auto;">
+                    <div class="t-sys" data-i18n="console-ready">[System] Consola lista. Los comandos se ejecutan en todos los bots activos.</div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:4px;">
+                    <input type="text" id="global-chat-input" placeholder="e.g., /login pass123 or hello world" data-i18n-placeholder="chat-placeholder">
+                    <button class="btn btn-primary" onclick="sendGlobalMsg()" style="min-width:100px;"><i class="fas fa-paper-plane"></i> <span data-i18n="send-btn">Enviar</span></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings -->
+        <section id="sec-settings" class="page-section">
+            <div class="card" style="max-width:460px;">
+                <div class="card-title" style="margin-bottom:22px;"><i class="fas fa-cog"></i> <span data-i18n="preferences-title">Preferencias</span></div>
+                <div class="input-group">
+                    <label data-i18n="language-label">Idioma</label>
+                    <select id="setting-lang">
+                        <option value="en" data-i18n="lang-en">English (US)</option>
+                        <option value="es" data-i18n="lang-es">Español (ES)</option>
+                        <option value="fr" data-i18n="lang-fr">Français (FR)</option>
+                        <option value="zh" data-i18n="lang-zh">中文 (简体)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="auto-reconnect-label">Auto-Reconexión</label>
+                    <select id="setting-reconnect">
+                        <option value="true" data-i18n="auto-reconnect-on">Activado (delay 10s)</option>
+                        <option value="false" data-i18n="auto-reconnect-off">Desactivado</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="antiafk-label">Método Anti-AFK</label>
+                    <select id="setting-antiafk">
+                        <option value="look" data-i18n="antiafk-look">Movimiento de cabeza (seguro)</option>
+                        <option value="swing" data-i18n="antiafk-swing">Balanceo de brazo</option>
+                        <option value="jump" data-i18n="antiafk-jump">Saltos (arriesgado)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label data-i18n="discord-label">Discord Bot Integration</label>
+                    <input type="password" id="discord-token" placeholder="Bot Token" data-i18n-placeholder="discord-token-placeholder">
+                    <input type="text" id="discord-guild" placeholder="Server/Guild ID" data-i18n-placeholder="discord-guild-placeholder" style="margin-top:8px;">
+                    <button class="btn btn-primary" onclick="saveDiscordConfig()" style="width:100%;margin-top:8px;">
+                        <i class="fab fa-discord"></i> <span data-i18n="discord-save-btn">Connect Discord Bot</span>
+                    </button>
+                    <div id="discord-status" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
+                </div>
+                <button class="btn btn-success" onclick="applySettings()" style="width:100%;margin-top:8px;">
+                    <i class="fas fa-check"></i> <span data-i18n="apply-btn">Aplicar</span>
+                </button>
+                <button class="btn btn-danger" onclick="quitApp()" style="width:100%;margin-top:10px;">
+                    <i class="fas fa-power-off"></i> <span data-i18n="quit-btn">Quit</span>
+                </button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modales -->
+<div class="modal-overlay" id="modal-add-offline">
+    <div class="modal" style="width:400px;">
+        <div class="modal-header">
+            <h3 class="card-title"><i class="fas fa-user-plus"></i> <span data-i18n="add-offline-modal-title">Añadir Offline</span></h3>
+            <button class="btn-icon" onclick="closeModal('modal-add-offline')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="input-group">
+                <label data-i18n="username-label">Nombre de usuario</label>
+                <input type="text" id="offline-name-input" placeholder="Notch" data-i18n-placeholder="offline-name-placeholder">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('modal-add-offline')" data-i18n="cancel-btn">Cancelar</button>
+            <button class="btn btn-primary" onclick="addOfflineAccount()"><i class="fas fa-check"></i> <span data-i18n="save-btn">Guardar</span></button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-microsoft">
+    <div class="modal" style="width:400px;">
+        <div class="modal-header">
+            <h3 class="card-title"><i class="fab fa-microsoft"></i> <span data-i18n="add-ms-modal-title">Nueva Cuenta Microsoft</span></h3>
+            <button class="btn-icon" onclick="closeModal('modal-add-microsoft')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div style="background:var(--accent-dim);border:1px solid rgba(124,106,247,.25);border-radius:10px;padding:14px;">
+                <p style="font-size:.81rem;color:var(--accent2);display:flex;gap:8px;align-items:flex-start;line-height:1.6;">
+                    <i class="fas fa-circle-info" style="margin-top:2px;flex-shrink:0;"></i>
+                    <span data-i18n="ms-auth-info">Al confirmar se abrirá una ventana de Microsoft. Inicia sesión con tu cuenta y permite el acceso. Solo necesitas hacerlo una vez por cuenta.</span>
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('modal-add-microsoft')" data-i18n="cancel-btn">Cancelar</button>
+            <button class="btn btn-primary" onclick="startMicrosoftAuth()"><i class="fas fa-check"></i> <span data-i18n="start-auth-btn">Iniciar autenticación</span></button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-bot-control">
+    <div class="modal" style="width:680px;">
+        <div class="modal-header">
+            <h3 class="card-title" id="bot-modal-title" data-i18n="bot-console-title">Console</h3>
+            <button class="btn-icon" onclick="closeModal('modal-bot-control')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <div style="padding:12px 16px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" id="btn-toggle-viewer" style="flex:1;"><i class="fas fa-eye"></i> <span data-i18n="viewer-3d-btn">Visor 3D</span></button>
+                <button class="btn btn-danger btn-sm" onclick="killCurrentBot()"><i class="fas fa-power-off"></i> <span data-i18n="disconnect-btn">Desconectar</span></button>
+            </div>
+            <div style="padding:16px;">
+                <div class="terminal" id="bot-modal-terminal" style="height:250px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="bot-modal-input" placeholder="Ejecutar comando en este bot..." data-i18n-placeholder="bot-cmd-placeholder">
+                    <button class="btn btn-ghost btn-sm" onclick="sendIndividualMsg()"><i class="fas fa-share"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de inventario -->
+<div class="modal-overlay" id="modal-inventory">
+    <div class="modal" style="width:700px;">
+        <div class="modal-header">
+            <h3 class="card-title"><i class="fas fa-box-open"></i> <span data-i18n="inventory-title">Inventario</span> <span id="inventory-bot-name"></span></h3>
+            <button class="btn-icon" onclick="closeModal('modal-inventory')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="inventory-content">
+            <div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading-inventory">Cargando inventario...</span></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" id="drop-all-btn" style="display:none;" onclick="dropAllItems()"><i class="fas fa-trash-alt"></i> <span data-i18n="drop-all-btn">Dropear todo</span></button>
+            <button class="btn btn-ghost" onclick="closeModal('modal-inventory')" data-i18n="close-btn">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<div id="waiting-modal">
+    <div class="spinner"></div>
+    <p data-i18n="waiting-ms-text">Autenticando con Microsoft...<br>Se abrirá una ventana para iniciar sesión.<br>Por favor, espera mientras se completa el proceso.</p>
+    <small data-i18n="waiting-ms-note">No cierres esta ventana hasta que veas el mensaje de éxito.</small>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+// ========== TRADUCCIONES COMPLETAS ==========
+const translations = {
+    en: {
+        "brand-sub": "AFK Manager Pro",
+        "nav-dashboard": "Dashboard",
+        "nav-connect": "Mass Connect",
+        "nav-accounts": "Accounts",
+        "nav-proxies": "Proxies",
+        "nav-chat": "Commander",
+        "nav-settings": "Settings",
+        "status-text": "Server Core Online",
+        "dashboard-title": "DASHBOARD",
+        "connect-title": "MASS CONNECT",
+        "accounts-title": "ACCOUNTS",
+        "proxies-title": "PROXIES",
+        "chat-title": "COMMANDER",
+        "settings-title": "SETTINGS",
+        "launch-btn": "Launch",
+        "stat-total-label": "Total Bots",
+        "stat-online-label": "Online",
+        "stat-proxies-label": "Proxies",
+        "active-sessions-title": "Active Sessions",
+        "kill-all-btn": "Kill All",
+        "table-avatar": "Avatar",
+        "table-user": "Username",
+        "table-auth": "Auth",
+        "table-proxy": "Proxy",
+        "table-server": "Server",
+        "table-status": "Status",
+        "table-actions": "Actions",
+        "mass-connect-title": "Mass Connect",
+        "server-ip-label": "Server IP",
+        "server-port-label": "Port (optional)",
+        "server-ip-placeholder": "mc.hypixel.net or lunarmc.cc",
+        "mc-version-placeholder": "Auto or 1.20.1",
+        "mc-version-label": "MC Version",
+        "delay-label": "Delay (ms)",
+        "include-offline-label": "Include offline accounts",
+        "offline-accounts-available": "Offline accounts available:",
+        "deploy-fleet-btn": "Deploy Fleet",
+        "mass-connect-info": "Connects saved Microsoft accounts + (optional) offline.",
+        "accounts-title": "Database",
+        "add-offline-btn": "Offline",
+        "add-microsoft-btn": "Microsoft",
+        "table-skin": "Skin",
+        "table-identifier": "Identifier",
+        "table-type": "Type",
+        "table-action": "Action",
+        "proxy-raw-title": "Raw Input",
+        "proxy-format-hint": "Format: <code>ip:port</code> or <code>ip:port:user:pass</code> — one per line.",
+        "save-proxies-btn": "Save",
+        "parsed-list-title": "Parsed List",
+        "proxy-header": "Proxy",
+        "status-header": "Status",
+        "commander-title": "Commander — All Bots",
+        "toggle-server-msgs": "Show server messages",
+        "console-ready": "[System] Console ready. Commands are sent to all active bots.",
+        "chat-placeholder": "e.g., /login pass123 or hello world",
+        "send-btn": "Send",
+        "preferences-title": "Preferences",
+        "language-label": "Language",
+        "lang-en": "English (US)",
+        "lang-es": "Spanish (ES)",
+        "lang-fr": "French (FR)",
+        "lang-zh": "Chinese (Simplified)",
+        "auto-reconnect-label": "Auto-Reconnect",
+        "auto-reconnect-on": "Enabled (delay 10s)",
+        "auto-reconnect-off": "Disabled",
+        "antiafk-label": "Anti-AFK Method",
+        "antiafk-look": "Head movement (safe)",
+        "antiafk-swing": "Arm swing",
+        "antiafk-jump": "Jumps (risky)",
+        "apply-btn": "Apply",
+        "quit-btn": "Quit",
+        "bot-console-title": "Console",
+        "toast-info-title": "Info",
+        "status-online": "Online",
+        "status-offline": "Offline",
+        "toast-error-title": "Error",
+        "toast-empty-username-msg": "The name cannot be empty.",
+        "toast-account-added-title": "Account added",
+        "toast-offline-prefix": "Offline: ",
+        "toast-account-already-exists-msg": "This account already exists.",
+        "toast-proxies-saved-title": "Proxies saved",
+        "toast-proxies-compiled-suffix": " proxies compiled.",
+        "toast-cleared-title": "Cleared",
+        "toast-cleared-msg": "Database cleared.",
+        "toast-ip-required-msg": "IP is required.",
+        "toast-server-already-active-title": "Server already active",
+        "toast-server-already-active-msg": "There are already bots connected to ${host}. Stop the current ones first.",
+        "toast-no-offline-accounts-saved": "No offline accounts saved.",
+        "toast-no-accounts-to-connect-msg": "No Microsoft or offline accounts available to connect.",
+        "toast-deploying-fleet-title": "Deploying Fleet",
+        "toast-deploying-fleet-msg": "Connecting ${total} accounts...",
+        "toast-kill-signal-title": "Kill Signal",
+        "toast-kill-signal-msg": "Signal sent to all bots.",
+        "toast-viewer-title": "Viewer",
+        "toast-building-3d-msg": "Building 3D environment...",
+        "toast-disconnected-title": "Disconnected",
+        "toast-bot-stopped-msg": "Bot stopped.",
+        "toast-viewer-ready-title": "Viewer ready",
+        "toast-viewer-ready-msg": "Port ${port}",
+        "toast-dropping-title": "Dropping",
+        "toast-dropping-item-msg": "Dropping item from slot ${slot}...",
+        "toast-dropping-all-title": "Dropping all",
+        "toast-dropping-all-msg": "Dropping entire inventory...",
+        "toast-no-bots-online-title": "No bots online",
+        "toast-no-bots-online-msg": "No bot is in the world yet.",
+        "toast-saved-title": "Saved",
+        "toast-preferences-applied-msg": "Preferences applied.",
+        "toast-account-linked-title": "Account linked",
+        "toast-account-linked-msg": "Welcome ${username} ✅",
+        "toast-auth-error-title": "Authentication Error",
+        "inventory-title": "Inventory",
+        "loading-inventory": "Loading inventory...",
+        "drop-all-btn": "Drop all",
+        "close-btn": "Close",
+        "inventory-slot": "Slot",
+        "inventory-item": "Item",
+        "inventory-quantity": "Quantity",
+        "inventory-action": "Action",
+        "drop-item": "Drop",
+        "confirm-drop-all": "Are you sure you want to drop your entire inventory?",
+        "owner-nick-placeholder": "Owner nickname",
+        "follow-all-btn": "Follow Owner",
+        "stop-follow-btn": "Stop Following",
+        "toast-owner-nick-required": "You must enter the owner nickname first",
+        "toast-follow-all-title": "Following Owner",
+        "toast-follow-all-msg": "${count} bots now following ${owner}",
+        "toast-follow-started-title": "Following",
+        "toast-follow-started-msg": "Bot following ${target}",
+        "toast-follow-stopped-title": "Stopped",
+        "toast-follow-stopped-msg": "Bots stopped from following",
+        "discord-label": "Discord Bot Integration",
+        "discord-token-placeholder": "Bot Token",
+        "discord-guild-placeholder": "Server/Guild ID",
+        "discord-save-btn": "Connect Discord Bot",
+        "toast-discord-connected": "Discord bot connected!",
+        "toast-discord-error": "Failed to connect Discord bot"
+    },
+    es: {
+        "brand-sub": "AFK Manager Pro",
+        "nav-dashboard": "Dashboard",
+        "nav-connect": "Mass Connect",
+        "nav-accounts": "Cuentas",
+        "nav-proxies": "Proxies",
+        "nav-chat": "Commander",
+        "nav-settings": "Ajustes",
+        "status-text": "Servidor Core Online",
+        "dashboard-title": "DASHBOARD",
+        "connect-title": "CONEXIÓN MASIVA",
+        "accounts-title": "CUENTAS",
+        "proxies-title": "PROXIES",
+        "chat-title": "COMMANDER",
+        "settings-title": "AJUSTES",
+        "launch-btn": "Lanzar",
+        "stat-total-label": "Total Bots",
+        "stat-online-label": "Online",
+        "stat-proxies-label": "Proxies",
+        "active-sessions-title": "Sesiones Activas",
+        "kill-all-btn": "Kill All",
+        "table-avatar": "Avatar",
+        "table-user": "Usuario",
+        "table-auth": "Auth",
+        "table-proxy": "Proxy",
+        "table-server": "Servidor",
+        "table-status": "Estado",
+        "table-actions": "Acciones",
+        "mass-connect-title": "Conexión Masiva",
+        "server-ip-label": "IP del Servidor",
+        "server-port-label": "Puerto (opcional)",
+        "server-ip-placeholder": "mc.hypixel.net o lunarmc.cc",
+        "mc-version-placeholder": "Auto o 1.20.1",
+        "mc-version-label": "Versión MC",
+        "delay-label": "Delay (ms)",
+        "include-offline-label": "Incluir cuentas offline",
+        "offline-accounts-available": "Cuentas offline disponibles:",
+        "deploy-fleet-btn": "Desplegar Flota",
+        "mass-connect-info": "Conecta cuentas Microsoft guardadas + (opcional) offline.",
+        "accounts-title": "Base de Datos",
+        "add-offline-btn": "Offline",
+        "add-microsoft-btn": "Microsoft",
+        "table-skin": "Skin",
+        "table-identifier": "Identificador",
+        "table-type": "Tipo",
+        "table-action": "Acción",
+        "proxy-raw-title": "Input Raw",
+        "proxy-format-hint": "Formato: <code>ip:port</code> o <code>ip:port:user:pass</code> — uno por línea.",
+        "save-proxies-btn": "Guardar",
+        "parsed-list-title": "Lista Parseada",
+        "proxy-header": "Proxy",
+        "status-header": "Estado",
+        "commander-title": "Commander — Todos los Bots",
+        "toggle-server-msgs": "Mostrar mensajes del servidor",
+        "console-ready": "[System] Consola lista. Los comandos se ejecutan en todos los bots activos.",
+        "chat-placeholder": "Ej: /login pass123 o hola mundo",
+        "send-btn": "Enviar",
+        "preferences-title": "Preferencias",
+        "language-label": "Idioma",
+        "lang-en": "English (US)",
+        "lang-es": "Español (ES)",
+        "lang-fr": "Francés (FR)",
+        "lang-zh": "中文 (简体)",
+        "auto-reconnect-label": "Auto-Reconexión",
+        "auto-reconnect-on": "Activado (delay 10s)",
+        "auto-reconnect-off": "Desactivado",
+        "antiafk-label": "Método Anti-AFK",
+        "antiafk-look": "Movimiento de cabeza (seguro)",
+        "antiafk-swing": "Balanceo de brazo",
+        "antiafk-jump": "Saltos (arriesgado)",
+        "apply-btn": "Aplicar",
+        "quit-btn": "Salir",
+        "bot-console-title": "Consola",
+        "toast-info-title": "Info",
+        "status-online": "Online",
+        "status-offline": "Offline",
+        "toast-error-title": "Error",
+        "toast-empty-username-msg": "El nombre no puede estar vacío.",
+        "toast-account-added-title": "Cuenta añadida",
+        "toast-offline-prefix": "Offline: ",
+        "toast-account-already-exists-msg": "La cuenta ya existe.",
+        "toast-proxies-saved-title": "Proxies guardadas",
+        "toast-proxies-compiled-suffix": " proxies compiladas.",
+        "toast-cleared-title": "Limpiado",
+        "toast-cleared-msg": "Base de datos vaciada.",
+        "confirm-delete-proxies": "¿Seguro que quieres borrar todas las proxies?",
+        "no-offline-accounts-saved": "No hay cuentas offline guardadas.",
+        "toast-ip-required-msg": "La IP es obligatoria.",
+        "toast-server-already-active-title": "Servidor ya activo",
+        "toast-server-already-active-msg": "Ya hay bots conectados a ${host}. Detén los actuales primero.",
+        "toast-no-offline-accounts-saved": "No hay cuentas offline guardadas.",
+        "toast-no-accounts-to-connect-msg": "No hay cuentas Microsoft ni offline para conectar.",
+        "toast-deploying-fleet-title": "Desplegando Flota",
+        "toast-deploying-fleet-msg": "Conectando ${total} cuentas...",
+        "toast-kill-signal-title": "Kill Signal",
+        "toast-kill-signal-msg": "Señal enviada a todos los bots.",
+        "toast-viewer-title": "Visor",
+        "toast-building-3d-msg": "Construyendo entorno 3D...",
+        "toast-disconnected-title": "Desconectado",
+        "toast-bot-stopped-msg": "Bot detenido.",
+        "inventory-empty": "Inventario vacío",
+        "toast-dropping-title": "Dropeando",
+        "toast-dropping-item-msg": "Soltando item del slot ${slot}...",
+        "toast-dropping-all-title": "Dropeando todo",
+        "toast-dropping-all-msg": "Soltando todo el inventario...",
+        "toast-no-bots-online-title": "Sin bots online",
+        "toast-no-bots-online-msg": "Ningún bot está en el mundo aún.",
+        "toast-saved-title": "Guardado",
+        "toast-preferences-applied-msg": "Preferencias aplicadas.",
+        "toast-account-linked-title": "Cuenta Vinculada",
+        "toast-account-linked-msg": "Bienvenido ${username} ✅",
+        "toast-auth-error-title": "Error de Autenticación",
+        "toast-viewer-ready-title": "Visor Listo",
+        "toast-viewer-ready-msg": "Puerto ${port}",
+        "proxy-valid": "Válido",
+        "proxy-invalid": "Inválido",
+        "toast-viewer-ready-title": "Visor Listo",
+        "toast-viewer-ready-msg": "Puerto ${port}",
+        "toast-dropping-title": "Dropeando",
+        "toast-dropping-item-msg": "Soltando item del slot ${slot}...",
+        "toast-dropping-all-title": "Dropeando todo",
+        "toast-dropping-all-msg": "Soltando todo el inventario...",
+        "add-offline-modal-title": "Añadir Offline",
+        "username-label": "Nombre de usuario",
+        "offline-name-placeholder": "Notch",
+        "cancel-btn": "Cancelar",
+        "save-btn": "Guardar",
+        "add-ms-modal-title": "Nueva Cuenta Microsoft",
+        "ms-auth-info": "Al confirmar se abrirá una ventana de Microsoft. Inicia sesión con tu cuenta y permite el acceso. Solo necesitas hacerlo una vez por cuenta.",
+        "start-auth-btn": "Iniciar autenticación",
+        "viewer-3d-btn": "Visor 3D",
+        "disconnect-btn": "Desconectar",
+        "bot-cmd-placeholder": "Ejecutar comando en este bot...",
+        "waiting-ms-text": "Autenticando con Microsoft...<br>Se abrirá una ventana para iniciar sesión.<br>Por favor, espera mientras se completa el proceso.",
+        "waiting-ms-note": "No cierres esta ventana hasta que veas el mensaje de éxito.",
+        "show-server-msgs": "Mostrar mensajes del servidor",
+        "hide-server-msgs": "Ocultar mensajes del servidor",
+        "showing-server-msgs": "Mostrando mensajes del servidor",
+        "hiding-server-msgs": "Ocultando mensajes del servidor",
+        "no-accounts": "Sin cuentas guardadas",
+        "no-proxies": "Sin proxies",
+        "no-bots": "Sin bots activos",
+        "inventory-title": "Inventario",
+        "loading-inventory": "Cargando inventario...",
+        "drop-all-btn": "Dropear todo",
+        "close-btn": "Cerrar",
+        "inventory-slot": "Slot",
+        "inventory-item": "Item",
+        "inventory-quantity": "Cantidad",
+        "inventory-action": "Acción",
+        "drop-item": "Dropear",
+        "confirm-drop-all": "¿Estás seguro de que quieres dropear todo tu inventario?",
+        "owner-nick-placeholder": "Nick del dueño",
+        "follow-all-btn": "Seguir Dueño",
+        "stop-follow-btn": "Detener Seguimiento",
+        "toast-owner-nick-required": "Debes ingresar el nick del dueño primero",
+        "toast-follow-all-title": "Siguiendo al dueño",
+        "toast-follow-all-msg": "${count} bots siguen ahora a ${owner}",
+        "toast-follow-started-title": "Siguiendo",
+        "toast-follow-started-msg": "Bot siguiendo a ${target}",
+        "toast-follow-stopped-title": "Detenido",
+        "toast-follow-stopped-msg": "Bots detenidos de seguir",
+        "discord-label": "Integración con Discord Bot",
+        "discord-token-placeholder": "Token del Bot",
+        "discord-guild-placeholder": "ID del Servidor/Guild",
+        "discord-save-btn": "Conectar Bot de Discord",
+        "toast-discord-connected": "¡Bot de Discord conectado!",
+        "toast-discord-error": "Error al conectar bot de Discord"
+    }
+};
+
+// Fully translated additional languages (FR / ZH)
+translations.fr = {
+    "brand-sub": "AFK Manager Pro",
+    "nav-dashboard": "Tableau de bord",
+    "nav-connect": "Connexion en masse",
+    "nav-accounts": "Comptes",
+    "nav-proxies": "Proxies",
+    "nav-chat": "Commandant",
+    "nav-settings": "Paramètres",
+    "status-text": "Noyau du serveur en ligne",
+    "dashboard-title": "TABLEAU DE BORD",
+    "connect-title": "CONNEXION DE MASSE",
+    "accounts-title": "COMPTES",
+    "proxies-title": "PROXIES",
+    "chat-title": "COMMANDANT",
+    "settings-title": "PARAMÈTRES",
+    "launch-btn": "Lancer",
+    "stat-total-label": "Nombre de bots",
+    "stat-online-label": "En ligne",
+    "stat-proxies-label": "Proxies",
+    "active-sessions-title": "Sessions actives",
+    "kill-all-btn": "Tout tuer",
+    "table-avatar": "Avatar",
+    "table-user": "Nom d'utilisateur",
+    "table-auth": "Auth",
+    "table-proxy": "Proxy",
+    "table-server": "Serveur",
+    "table-status": "Statut",
+    "table-actions": "Actions",
+    "mass-connect-title": "Connexion en masse",
+    "server-ip-label": "IP du serveur",
+    "server-port-label": "Port (optionnel)",
+    "server-ip-placeholder": "mc.hypixel.net ou lunarmc.cc",
+    "mc-version-placeholder": "Auto ou 1.20.1",
+    "mc-version-label": "Version MC",
+    "delay-label": "Délai (ms)",
+    "include-offline-label": "Inclure les comptes hors ligne",
+    "offline-accounts-available": "Comptes hors ligne disponibles :",
+    "deploy-fleet-btn": "Déployer la flotte",
+    "mass-connect-info": "Connecte les comptes Microsoft enregistrés + (optionnel) hors ligne.",
+    "accounts-title": "Base de données",
+    "add-offline-btn": "Hors ligne",
+    "add-microsoft-btn": "Microsoft",
+    "table-skin": "Skin",
+    "table-identifier": "Identifiant",
+    "table-type": "Type",
+    "table-action": "Action",
+    "proxy-raw-title": "Entrée brute",
+    "proxy-format-hint": "Format : <code>ip:port</code> ou <code>ip:port:user:pass</code> — un par ligne.",
+    "save-proxies-btn": "Enregistrer",
+    "parsed-list-title": "Liste analysée",
+    "proxy-header": "Proxy",
+    "status-header": "Statut",
+    "commander-title": "Commandant — Tous les bots",
+    "toggle-server-msgs": "Afficher les messages du serveur",
+    "console-ready": "[System] Console prête. Les commandes sont envoyées à tous les bots actifs.",
+    "chat-placeholder": "ex. : /login pass123 ou bonjour le monde",
+    "send-btn": "Envoyer",
+    "preferences-title": "Préférences",
+    "language-label": "Langue",
+    "lang-en": "English (US)",
+    "lang-es": "Espagnol (ES)",
+    "lang-fr": "Français (FR)",
+    "lang-zh": "中文（简体）",
+    "auto-reconnect-label": "Reconnexion automatique",
+    "auto-reconnect-on": "Activé (délai 10s)",
+    "auto-reconnect-off": "Désactivé",
+    "antiafk-label": "Méthode Anti-AFK",
+    "antiafk-look": "Mouvement de tête (sûr)",
+    "antiafk-swing": "Coup de bras",
+    "antiafk-jump": "Sauts (risqué)",
+    "apply-btn": "Appliquer",
+    "quit-btn": "Quitter",
+    "bot-console-title": "Console",
+    "toast-info-title": "Info",
+    "status-online": "En ligne",
+    "status-offline": "Hors ligne",
+    "toast-error-title": "Erreur",
+    "toast-empty-username-msg": "Le nom ne peut pas être vide.",
+    "toast-account-added-title": "Compte ajouté",
+    "toast-offline-prefix": "Hors ligne : ",
+    "toast-account-already-exists-msg": "Ce compte existe déjà.",
+    "toast-proxies-saved-title": "Proxies enregistrées",
+    "toast-proxies-compiled-suffix": " proxies compilés.",
+    "toast-cleared-title": "Effacé",
+    "toast-cleared-msg": "Base de données effacée.",
+    "confirm-delete-proxies": "Êtes-vous sûr de vouloir supprimer toutes les proxies ?",
+    "toast-ip-required-msg": "L'IP est requise.",
+    "toast-server-already-active-title": "Serveur déjà actif",
+    "toast-server-already-active-msg": "Il y a déjà des bots connectés à ${host}. Arrêtez d'abord les bots en cours.",
+    "toast-no-offline-accounts-saved": "Aucun compte hors ligne enregistré.",
+    "toast-no-accounts-to-connect-msg": "Aucun compte Microsoft ou hors ligne disponible pour se connecter.",
+    "toast-deploying-fleet-title": "Déploiement de la flotte",
+    "toast-deploying-fleet-msg": "Connexion de ${total} comptes...",
+    "toast-kill-signal-title": "Kill Signal",
+    "toast-kill-signal-msg": "Signal envoyé à tous les bots.",
+    "toast-viewer-title": "Visionneuse",
+    "toast-building-3d-msg": "Construction de l'environnement 3D...",
+    "toast-disconnected-title": "Déconnecté",
+    "toast-bot-stopped-msg": "Bot arrêté.",
+    "toast-viewer-ready-title": "Visionneuse prête",
+    "toast-viewer-ready-msg": "Port ${port}",
+    "owner-nick-placeholder": "Pseudo du propriétaire",
+    "follow-all-btn": "Suivre le propriétaire",
+    "stop-follow-btn": "Arrêter le suivi",
+    "toast-owner-nick-required": "Vous devez d'abord entrer le pseudo du propriétaire",
+    "toast-follow-all-title": "Suivi du propriétaire",
+    "toast-follow-all-msg": "${count} bots suivent maintenant ${owner}",
+    "toast-follow-started-title": "Suivi en cours",
+    "toast-follow-started-msg": "Bot suivant ${target}",
+    "toast-follow-stopped-title": "Arrêté",
+    "toast-follow-stopped-msg": "Bots arrêtés de suivre",
+    "discord-label": "Intégration Discord Bot",
+    "discord-token-placeholder": "Token du Bot",
+    "discord-guild-placeholder": "ID du Serveur/Guild",
+    "discord-save-btn": "Connecter le Bot Discord",
+    "toast-discord-connected": "Bot Discord connecté !",
+    "toast-discord-error": "Échec de connexion du bot Discord"
+};
+
+translations.zh = {
+    // ... (rest of the translations remain the same)
+    "toast-kill-signal-msg": "已向所有机器人发送信号。",
+    "toast-viewer-title": "查看器",
+    "toast-building-3d-msg": "正在构建 3D 环境...",
+    "toast-disconnected-title": "已断开",
+    "toast-bot-stopped-msg": "机器人已停止。",
+    "toast-viewer-ready-title": "查看器就绪",
+    "toast-viewer-ready-msg": "端口 ${port}",
+    "owner-nick-placeholder": "所有者昵称",
+    "follow-all-btn": "跟随所有者",
+    "stop-follow-btn": "停止跟随",
+    "toast-owner-nick-required": "您必须先输入所有者昵称",
+    "toast-follow-all-title": "跟随所有者",
+    "toast-follow-all-msg": "${count} 个机器人现在跟随 ${owner}",
+    "toast-follow-started-title": "正在跟随",
+    "toast-follow-started-msg": "机器人跟随 ${target}",
+    "toast-follow-stopped-title": "已停止",
+    "toast-follow-stopped-msg": "机器人停止跟随",
+    "discord-label": "Discord 机器人集成",
+    "discord-token-placeholder": "机器人令牌",
+    "discord-guild-placeholder": "服务器/Guild ID",
+    "discord-save-btn": "连接 Discord 机器人",
+    "toast-discord-connected": "Discord 机器人已连接！",
+    "toast-discord-error": "连接 Discord 机器人失败",
+    "toast-no-bots-online-msg": "目前没有机器人在世界中。",
+    "toast-saved-title": "已保存",
+    "toast-preferences-applied-msg": "偏好设置已应用。",
+    "toast-account-linked-title": "账户已绑定",
+    "toast-account-linked-msg": "欢迎 ${username} ✅",
+    "toast-auth-error-title": "认证错误",
+    "inventory-empty": "背包为空",
+    "no-offline-accounts-saved": "没有已保存的离线账户。",
+    "proxy-valid": "有效",
+    "proxy-invalid": "无效",
+    "add-offline-modal-title": "添加离线账户",
+    "username-label": "用户名",
+    "offline-name-placeholder": "Notch",
+    "cancel-btn": "取消",
+    "save-btn": "保存",
+    "add-ms-modal-title": "新的 Microsoft 账户",
+    "ms-auth-info": "确认后将打开 Microsoft 窗口。使用你的账户登录并允许访问。每个账户只需要做一次。",
+    "start-auth-btn": "开始认证",
+    "viewer-3d-btn": "3D 查看器",
+    "disconnect-btn": "断开连接",
+    "bot-cmd-placeholder": "在此机器人上执行命令...",
+    "waiting-ms-text": "正在使用 Microsoft 进行认证...<br>将打开登录窗口。<br>请等待流程完成。",
+    "waiting-ms-note": "在看到成功消息前不要关闭此窗口。",
+    "show-server-msgs": "显示服务器消息",
+    "hide-server-msgs": "隐藏服务器消息",
+    "showing-server-msgs": "正在显示服务器消息",
+    "hiding-server-msgs": "正在隐藏服务器消息",
+    "no-accounts": "没有已保存的账户",
+    "no-proxies": "没有代理",
+    "no-bots": "没有活跃机器人",
+    "inventory-title": "背包",
+    "loading-inventory": "正在加载背包...",
+    "drop-all-btn": "全部丢弃",
+    "close-btn": "关闭",
+    "inventory-slot": "槽位",
+    "inventory-item": "物品",
+    "inventory-quantity": "数量",
+    "inventory-action": "操作",
+    "drop-item": "丢弃",
+    "confirm-drop-all": "你确定要丢弃整个背包吗？",
+    // Back-compat keys
+    "toast-viewer-title": "查看器",
+    "toast-building-3d-msg": "正在构建 3D 环境...",
+    "toast-info-title": "信息",
+};
+
+// ========== ESTADO GLOBAL ==========
+let currentLang = 'en';
+const AppState = {
+    bots: {},
+    accounts: JSON.parse(localStorage.getItem('afk_accounts') || '[]'),
+    proxies: JSON.parse(localStorage.getItem('afk_proxies') || '[]'),
+    config: JSON.parse(localStorage.getItem('afk_config') || '{"lang":"en","reconnect":"true","antiafk":"look"}'),
+    currentBotIdContext: null,
+    showServerMessages: false
+};
+
+// ========== FUNCIONES AUXILIARES ==========
+function showToast(title, msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    const ic = { success: 'fa-check', error: 'fa-xmark', info: 'fa-info', warning: 'fa-triangle-exclamation' };
+    t.innerHTML = `<div class="toast-icon-wrap"><i class="fas ${ic[type] || 'fa-info'}"></i></div><div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+    c.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 4200);
+}
+
+function t(key) {
+    return (translations[currentLang] && translations[currentLang][key]) ? translations[currentLang][key] : key;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function quitApp() {
+    if (window.appAPI && typeof window.appAPI.quit === 'function') {
+        window.appAPI.quit();
+    } else {
+        // Fallback: try to close the window (may only minimize depending on Electron config).
+        window.close();
+    }
+}
+
+function nav(id, el) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    el.classList.add('active');
+    const titleKey = id + '-title';
+    if (translations[currentLang] && translations[currentLang][titleKey]) {
+        document.getElementById('page-title').innerHTML = translations[currentLang][titleKey];
+    } else {
+        document.getElementById('page-title').innerText = id.toUpperCase();
+    }
+}
+
+function translateUI(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = translations[lang][key];
+            } else {
+                el.innerHTML = translations[lang][key];
+            }
+        }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
+        }
+    });
+    const activePage = document.querySelector('.page-section.active').id.replace('sec-', '');
+    const titleKey = activePage + '-title';
+    if (translations[lang][titleKey]) {
+        document.getElementById('page-title').innerHTML = translations[lang][titleKey];
+    } else {
+        document.getElementById('page-title').innerHTML = activePage.toUpperCase();
+    }
+    const reconnectSelect = document.getElementById('setting-reconnect');
+    if (reconnectSelect) {
+        const onOption = reconnectSelect.querySelector('option[value="true"]');
+        const offOption = reconnectSelect.querySelector('option[value="false"]');
+        if (onOption) onOption.text = translations[lang]['auto-reconnect-on'];
+        if (offOption) offOption.text = translations[lang]['auto-reconnect-off'];
+    }
+    const antiafkSelect = document.getElementById('setting-antiafk');
+    if (antiafkSelect) {
+        const lookOpt = antiafkSelect.querySelector('option[value="look"]');
+        const swingOpt = antiafkSelect.querySelector('option[value="swing"]');
+        const jumpOpt = antiafkSelect.querySelector('option[value="jump"]');
+        if (lookOpt) lookOpt.text = translations[lang]['antiafk-look'];
+        if (swingOpt) swingOpt.text = translations[lang]['antiafk-swing'];
+        if (jumpOpt) jumpOpt.text = translations[lang]['antiafk-jump'];
+    }
+    const langSelect = document.getElementById('setting-lang');
+    if (langSelect) {
+        const enOpt = langSelect.querySelector('option[value="en"]');
+        const esOpt = langSelect.querySelector('option[value="es"]');
+        const frOpt = langSelect.querySelector('option[value="fr"]');
+        const zhOpt = langSelect.querySelector('option[value="zh"]');
+        if (enOpt) enOpt.text = translations[lang]?.['lang-en'] || 'English (US)';
+        if (esOpt) esOpt.text = translations[lang]?.['lang-es'] || 'Español (ES)';
+        if (frOpt) frOpt.text = translations[lang]?.['lang-fr'] || 'Français (FR)';
+        if (zhOpt) zhOpt.text = translations[lang]?.['lang-zh'] || '中文 (简体)';
+    }
+    const toggleBtn = document.getElementById('toggle-server-msgs');
+    if (toggleBtn) {
+        const span = toggleBtn.querySelector('span');
+        if (span && span.hasAttribute('data-i18n')) {
+            span.innerHTML = translations[lang][span.getAttribute('data-i18n')];
+        }
+    }
+    // Inventory modal dynamic elements
+    const inventoryTitle = document.querySelector('#modal-inventory .card-title span:first-child');
+    if (inventoryTitle) inventoryTitle.innerHTML = translations[lang]['inventory-title'];
+    const dropAllBtnSpan = document.querySelector('#drop-all-btn span');
+    if (dropAllBtnSpan) dropAllBtnSpan.innerHTML = translations[lang]['drop-all-btn'];
+    const closeBtnSpan = document.querySelector('#modal-inventory .modal-footer .btn-ghost span');
+    if (closeBtnSpan) closeBtnSpan.innerHTML = translations[lang]['close-btn'];
+}
+
+// ========== FUNCIONES DE CUENTAS ==========
+function addOfflineAccount() {
+    const name = document.getElementById('offline-name-input').value.trim();
+    if (!name) return showToast(t('toast-error-title'), t('toast-empty-username-msg'), 'error');
+    if (!AppState.accounts.find(a => a.name === name)) {
+        AppState.accounts.push({ name, type: 'offline' });
+        localStorage.setItem('afk_accounts', JSON.stringify(AppState.accounts));
+        renderAccounts();
+        showToast(t('toast-account-added-title'), `${t('toast-offline-prefix')}${name}`, 'success');
+    } else {
+        showToast(t('toast-error-title'), t('toast-account-already-exists-msg'), 'error');
+    }
+    closeModal('modal-add-offline');
+}
+
+function openAddOfflineModal() {
+    openModal('modal-add-offline');
+    document.getElementById('offline-name-input').value = '';
+}
+
+function startMicrosoftAuth() {
+    const waitingModal = document.getElementById('waiting-modal');
+    waitingModal.style.display = 'flex';
+    const btn = document.getElementById('btn-add-microsoft');
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+    socket.emit('add-microsoft-account');
+    closeModal('modal-add-microsoft');
+}
+
+function deleteAcc(idx) {
+    AppState.accounts.splice(idx, 1);
+    localStorage.setItem('afk_accounts', JSON.stringify(AppState.accounts));
+    renderAccounts();
+}
+
+function renderAccounts() {
+    const html = AppState.accounts.length === 0
+        ? `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px;">${translations[currentLang]['no-accounts'] || 'No accounts saved'}</td></tr>`
+        : AppState.accounts.map((a, i) => `
+            <tr>
+                <td><img src="https://mc-heads.net/avatar/${a.name}/32" class="mc-avatar"></td>
+                <td style="font-weight:600;">${a.name}</td>
+                <td>${a.type === 'microsoft' ? `<span class="badge badge-ms"><i class="fab fa-microsoft"></i> MICROSOFT</span>` : `<span class="badge" style="background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(124,106,247,.2);">OFFLINE</span>`}</td>
+                <td style="text-align:right;"><button class="btn-icon" style="color:var(--red);" onclick="deleteAcc(${i})"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    document.getElementById('acc-list-ui').innerHTML = html;
+    updateOfflineAccountsList();
+}
+
+function updateOfflineAccountsList() {
+    const offline = AppState.accounts.filter(a => a.type === 'offline');
+    const container = document.getElementById('offline-accounts-list');
+    if (offline.length === 0) {
+        container.innerHTML = `<span style="color:var(--muted);">${t('no-offline-accounts-saved')}</span>`;
+    } else {
+        container.innerHTML = offline.map(a => `<span class="offline-badge">${a.name}</span>`).join('');
+    }
+    const sw = document.getElementById('include-offline-switch').checked;
+    document.getElementById('offline-info').classList.toggle('show', sw);
+}
+
+// ========== FUNCIONES DE PROXIES ==========
+function saveProxies() {
+    const lines = document.getElementById('proxy-raw').value.split('\n').map(l => l.trim()).filter(l => l);
+    AppState.proxies = lines;
+    localStorage.setItem('afk_proxies', JSON.stringify(lines));
+    renderProxies();
+    document.getElementById('stat-proxies').innerText = lines.length;
+    showToast(t('toast-proxies-saved-title'), `${lines.length}${t('toast-proxies-compiled-suffix')}`, 'success');
+}
+
+function clearAllProxies() {
+    if (!confirm(t('confirm-delete-proxies'))) return;
+    AppState.proxies = [];
+    localStorage.setItem('afk_proxies', JSON.stringify([]));
+    renderProxies();
+    document.getElementById('stat-proxies').innerText = '0';
+    showToast(t('toast-cleared-title'), t('toast-cleared-msg'), 'warning');
+}
+
+function renderProxies() {
+    document.getElementById('proxy-raw').value = AppState.proxies.join('\n');
+    const html = AppState.proxies.length === 0
+        ? `<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:24px;">${t('no-proxies')}</td></tr>`
+        : AppState.proxies.map(p => `<tr><td><span class="badge badge-proxy">${p}</span></td><td><span class="badge ${p.includes(':') ? 'badge-online' : 'badge-offline'}">${p.includes(':') ? t('proxy-valid') : t('proxy-invalid')}</span></td></tr>`).join('');
+    document.getElementById('proxy-parsed-ui').innerHTML = html;
+}
+
+// ========== FUNCIONES DE CONEXIÓN MASIVA ==========
+function startMassJoin() {
+    const host = document.getElementById('g-host').value.trim();
+    const port = parseInt(document.getElementById('g-port').value.trim()) || 25565;
+    const ver = document.getElementById('g-ver').value.trim();
+    if (!host) return showToast(t('toast-error-title'), t('toast-ip-required-msg'), 'error');
+
+    const activeHosts = new Set(Object.values(AppState.bots).map(b => (b.host || '').toLowerCase()));
+    if (activeHosts.has(host.toLowerCase())) {
+        return showToast(t('toast-server-already-active-title'), t('toast-server-already-active-msg').replace('${host}', host), 'error');
+    }
+
+    const microsoftAccounts = AppState.accounts.filter(a => a.type === 'microsoft');
+    let offlineNames = [];
+    if (document.getElementById('include-offline-switch').checked) {
+        offlineNames = AppState.accounts.filter(a => a.type === 'offline').map(a => a.name);
+        if (offlineNames.length === 0) {
+            return showToast(t('toast-error-title'), t('toast-no-offline-accounts-saved'), 'error');
+        }
+    }
+
+    const total = microsoftAccounts.length + offlineNames.length;
+    if (total === 0) {
+        return showToast(t('toast-error-title'), t('toast-no-accounts-to-connect-msg'), 'error');
+    }
+
+    showToast(t('toast-deploying-fleet-title'), t('toast-deploying-fleet-msg').replace('${total}', total), 'info');
+
+    socket.emit('deploy-fleet', {
+        host: host,
+        port: port,
+        version: ver || false,
+        proxy: null,
+        usernames: microsoftAccounts.map(a => a.name),
+        offlineNames: offlineNames
+    });
+    nav('dashboard', document.querySelector('.nav-item:first-child'));
+}
+
+function stopAll() {
+    Object.keys(AppState.bots).forEach(id => socket.emit('stop-bot', id));
+    showToast(t('toast-kill-signal-title'), t('toast-kill-signal-msg'), 'warning');
+}
+
+// ===== FUNCIONES DE SEGUIMIENTO (FOLLOW) =====
+function followAllOwner() {
+    const ownerNick = document.getElementById('owner-nick').value.trim();
+    if (!ownerNick) {
+        showToast(t('toast-error-title'), t('toast-owner-nick-required'), 'error');
+        return;
+    }
+    socket.emit('follow-all-owner', ownerNick);
+    // Guardar el nick del dueño en localStorage para persistencia
+    localStorage.setItem('afk_owner_nick', ownerNick);
+}
+
+function stopAllFollow() {
+    socket.emit('stop-all-follow');
+    showToast(t('toast-follow-stopped-title'), t('toast-follow-stopped-msg'), 'info');
+}
+
+function followSingleBot(botId) {
+    const ownerNick = document.getElementById('owner-nick').value.trim();
+    if (!ownerNick) {
+        showToast(t('toast-error-title'), t('toast-owner-nick-required'), 'error');
+        return;
+    }
+    socket.emit('start-follow', { id: botId, targetUsername: ownerNick });
+    showToast(t('toast-follow-started-title'), t('toast-follow-started-msg').replace('${target}', ownerNick), 'success');
+}
+
+function stopSingleFollow(botId) {
+    socket.emit('stop-follow', botId);
+}
+
+// ========== FUNCIONES DE TABLA DE BOTS ==========
+function renderBotTable() {
+    const keys = Object.keys(AppState.bots);
+    document.getElementById('stat-total').innerText = keys.length;
+    let online = 0;
+    const html = keys.length === 0
+        ? `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px;">${t('no-bots')}</td></tr>`
+        : keys.map(id => {
+            const b = AppState.bots[id];
+            const isOn = b.status === 'Online' || b.status === 'Active';
+            if (isOn) online++;
+            const isReconnecting = (b.status || '').includes('Reconnect') || (b.status || '').includes('Reconect');
+            const badge = isOn ? `<span class="badge badge-online">${t('status-online')}</span>` : isReconnecting ? `<span class="badge badge-connecting">${b.status}</span>` : `<span class="badge badge-offline">${b.status || t('status-offline')}</span>`;
+            const authType = b.type === 'microsoft' ? `<span class="badge badge-ms" style="font-size:.65rem;"><i class="fab fa-microsoft"></i></span>` : `<span class="badge" style="background:var(--accent-dim);color:var(--accent);font-size:.65rem;border:1px solid rgba(124,106,247,.2);">OFF</span>`;
+            return `
+                <tr>
+                    <td><img src="https://mc-heads.net/avatar/${b.name}/24" class="mc-avatar" style="width:24px;height:24px;"></td>
+                    <td style="font-weight:600;">${b.name}</td>
+                    <td>${authType}</td>
+                    <td><span class="badge badge-proxy">${(b.proxy || 'Direct').slice(0, 22)}</span></td>
+                    <td>${badge}</td>
+                    <td style="text-align:right;">
+                        <button class="btn-icon" title="Console" onclick="openBotPanel('${id}')"><i class="fas fa-terminal"></i></button>
+                        <button class="btn-icon" title="Inventory" onclick="openInventoryPanel('${id}')"><i class="fas fa-box-open"></i></button>
+                        <button class="btn-icon" style="color:var(--red);" onclick="socket.emit('stop-bot','${id}')"><i class="fas fa-stop"></i></button>
+                        <button class="btn-icon" style="color:var(--muted);" onclick="socket.emit('remove-bot','${id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    document.getElementById('bot-list-ui').innerHTML = html;
+    document.getElementById('stat-online').innerText = online;
+}
+
+// ========== PANEL DE CONTROL DE BOT ==========
+function openBotPanel(id) {
+    AppState.currentBotIdContext = id;
+    const b = AppState.bots[id];
+    document.getElementById('bot-modal-title').innerHTML = `<img src="https://mc-heads.net/avatar/${b.name}/24" class="mc-avatar"> ${b.name}`;
+    document.getElementById('bot-modal-terminal').innerHTML = `<div class="t-sys">--- Stream: ${b.name} ---</div>`;
+    socket.emit('join-bot-logs', id);
+    const vBtn = document.getElementById('btn-toggle-viewer');
+    if (b.viewerPort) {
+        vBtn.innerHTML = `<i class="fas fa-external-link-alt"></i> ${translations[currentLang]['viewer-3d-btn']} (Port ${b.viewerPort})`;
+        vBtn.className = 'btn btn-success btn-sm';
+        vBtn.onclick = () => window.open(`http://localhost:${b.viewerPort}`, '_blank');
+    } else {
+        vBtn.innerHTML = `<i class="fas fa-eye"></i> ${translations[currentLang]['viewer-3d-btn']}`;
+        vBtn.className = 'btn btn-primary btn-sm';
+        vBtn.onclick = () => { socket.emit('toggle-viewer', { id: AppState.currentBotIdContext, enabled: true }); showToast(t('toast-viewer-title'), t('toast-building-3d-msg'), 'info'); };
+    }
+    openModal('modal-bot-control');
+}
+
+function killCurrentBot() {
+    if (AppState.currentBotIdContext) {
+        socket.emit('stop-bot', AppState.currentBotIdContext);
+        closeModal('modal-bot-control');
+        showToast(t('toast-disconnected-title'), t('toast-bot-stopped-msg'), 'warning');
+    }
+}
+
+function sendIndividualMsg() {
+    const inp = document.getElementById('bot-modal-input');
+    if (!inp.value || !AppState.currentBotIdContext) return;
+    socket.emit('bot-chat', { id: AppState.currentBotIdContext, msg: inp.value });
+    appendToTerminal(`> ${inp.value}`, 't-ok');
+    inp.value = '';
+}
+
+function appendToTerminal(msg, cls = '') {
+    const t = document.getElementById('bot-modal-terminal');
+    t.innerHTML += `<div class="${cls}">${msg}</div>`;
+    t.scrollTop = t.scrollHeight;
+}
+
+// ========== INVENTARIO ==========
+let currentInventoryBotId = null;
+
+function openInventoryPanel(id) {
+    currentInventoryBotId = id;
+    const b = AppState.bots[id];
+    document.getElementById('inventory-bot-name').innerHTML = `<img src="https://mc-heads.net/avatar/${b.name}/16" class="mc-avatar"> ${b.name}`;
+    document.getElementById('inventory-content').innerHTML = `<div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> ${translations[currentLang]['loading-inventory']}</div>`;
+    document.getElementById('drop-all-btn').style.display = 'none';
+    openModal('modal-inventory');
+    socket.emit('get-inventory', id);
+}
+
+function renderInventory(items) {
+    const container = document.getElementById('inventory-content');
+    if (!items || items.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);"><i class="fas fa-box-open"></i> ${t('inventory-empty')}</div>`;
+        document.getElementById('drop-all-btn').style.display = 'none';
+        return;
+    }
+    const html = `
+        <table class="inventory-table">
+            <thead>
+                <tr><th data-i18n="inventory-slot">Slot</th><th data-i18n="inventory-item">Item</th><th data-i18n="inventory-quantity">Cantidad</th><th data-i18n="inventory-action">Acción</th></tr>
+            </thead>
+            <tbody>
+                ${items.map(item => `
+                    <tr>
+                        <td>${item.slot}</td>
+                        <td><div class="inventory-item"><img src="https://mc-heads.net/item/${item.name.replace(/:/g, '/')}/64" onerror="this.src='https://via.placeholder.com/32?text=?'"> ${item.displayName || item.name}</div></td>
+                        <td>${item.count}</td>
+                        <td><button class="drop-item-btn" onclick="dropItem(${item.slot})"><i class="fas fa-trash-alt"></i> ${translations[currentLang]['drop-item']}</button></td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    container.innerHTML = html;
+    document.getElementById('drop-all-btn').style.display = 'block';
+    // Traducir los encabezados de la tabla
+    document.querySelectorAll('#inventory-content [data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) el.innerHTML = translations[currentLang][key];
+    });
+}
+
+function dropItem(slot) {
+    if (!currentInventoryBotId) return;
+    socket.emit('drop-item', { id: currentInventoryBotId, slot });
+    showToast(t('toast-dropping-title'), t('toast-dropping-item-msg').replace('${slot}', slot), 'info');
+    setTimeout(() => socket.emit('get-inventory', currentInventoryBotId), 500);
+}
+
+function dropAllItems() {
+    if (!currentInventoryBotId) return;
+    if (confirm(translations[currentLang]['confirm-drop-all'])) {
+        socket.emit('drop-all', currentInventoryBotId);
+        showToast(t('toast-dropping-all-title'), t('toast-dropping-all-msg'), 'warning');
+        setTimeout(() => socket.emit('get-inventory', currentInventoryBotId), 1000);
+    }
+}
+
+// ========== CHAT GLOBAL ==========
+function sendGlobalMsg() {
+    const inp = document.getElementById('global-chat-input');
+    if (!inp.value.trim()) return;
+    const msg = inp.value.trim();
+    const onlineBots = Object.keys(AppState.bots).filter(id => {
+        const st = AppState.bots[id]?.status;
+        return st === 'Online' || st === 'Active';
+    });
+    if (onlineBots.length === 0) {
+        showToast(t('toast-no-bots-online-title'), t('toast-no-bots-online-msg'), 'warning');
+        return;
+    }
+    // Enviar comandos con delay escalonado de 3 segundos para evitar saturación
+    onlineBots.forEach((id, index) => {
+        setTimeout(() => {
+            socket.emit('bot-chat', { id, msg });
+        }, index * 3000);
+    });
+    const box = document.getElementById('global-chat-box');
+    box.innerHTML += `<div class="t-ok">[All ${onlineBots.length}] ${msg} (enviando con delay 3s...)</div>`;
+    box.scrollTop = box.scrollHeight;
+    inp.value = '';
+}
+
+function addServerMessage(botId, message) {
+    if (!AppState.showServerMessages) return;
+    const box = document.getElementById('global-chat-box');
+    box.innerHTML += `<div class="t-sys">[${botId}] ${message}</div>`;
+    box.scrollTop = box.scrollHeight;
+}
+
+// ========== CONFIGURACIÓN ==========
+function applySettings() {
+    saveConfig();
+    const newLang = document.getElementById('setting-lang').value;
+    if (newLang !== currentLang) {
+        translateUI(newLang);
+        AppState.config.lang = newLang;
+        localStorage.setItem('afk_config', JSON.stringify(AppState.config));
+    }
+    showToast(t('toast-saved-title'), t('toast-preferences-applied-msg'), 'success');
+}
+
+async function loadDiscordConfig() {
+    try {
+        if (window.appAPI && window.appAPI.discordLoadConfig) {
+            const result = await window.appAPI.discordLoadConfig();
+            if (result.success && result.guildId) {
+                document.getElementById('discord-token').value = result.token || '';
+                document.getElementById('discord-guild').value = result.guildId || '';
+                const statusDiv = document.getElementById('discord-status');
+                if (result.isConnected) {
+                    statusDiv.innerHTML = '<span style="color:var(--green);"><i class="fas fa-check-circle"></i> Connected</span>';
+                }
+                console.log('[Discord] Config loaded from file');
+            }
+        }
+    } catch (e) {
+        console.error('[Discord] Error loading config:', e);
+    }
+}
+
+async function saveDiscordConfig() {
+    const token = document.getElementById('discord-token').value.trim();
+    const guildId = document.getElementById('discord-guild').value.trim();
+    const statusDiv = document.getElementById('discord-status');
+    
+    if (!token || !guildId) {
+        showToast(t('toast-error-title'), 'Token and Guild ID are required', 'error');
+        return;
+    }
+    
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+    
+    try {
+        if (window.appAPI && window.appAPI.discordSaveConfig) {
+            const result = await window.appAPI.discordSaveConfig({ token, guildId });
+            if (result.success) {
+                showToast(t('toast-discord-connected'), result.message, 'success');
+                statusDiv.innerHTML = '<span style="color:var(--green);"><i class="fas fa-check-circle"></i> Connected</span>';
+            } else {
+                showToast(t('toast-discord-error'), result.message, 'error');
+                statusDiv.innerHTML = '<span style="color:var(--red);"><i class="fas fa-times-circle"></i> Failed</span>';
+            }
+        } else {
+            showToast(t('toast-error-title'), 'Discord API not available', 'error');
+            statusDiv.innerHTML = '';
+        }
+    } catch (e) {
+        showToast(t('toast-error-title'), e.message, 'error');
+        statusDiv.innerHTML = '';
+    }
+}
+
+function saveConfig() {
+    const oldMethod = AppState.config.antiafk;
+    AppState.config.reconnect = document.getElementById('setting-reconnect').value;
+    AppState.config.antiafk = document.getElementById('setting-antiafk').value;
+    localStorage.setItem('afk_config', JSON.stringify(AppState.config));
+    
+    // Si cambió el método anti-AFK, actualizar todos los bots activos
+    if (oldMethod !== AppState.config.antiafk) {
+        const newMethod = AppState.config.antiafk;
+        Object.keys(AppState.bots).forEach(id => {
+            const bot = AppState.bots[id];
+            if (bot.status === 'Online' || bot.status === 'Active') {
+                socket.emit('set-antiafk-method', { id, method: newMethod });
+            }
+        });
+        console.log(`[Settings] Anti-AFK method changed to ${newMethod} for all online bots`);
+    }
+}
+
+// ========== EVENTOS DE SOCKET ==========
+socket.on('account-added', (acc) => {
+    const waitingModal = document.getElementById('waiting-modal');
+    waitingModal.style.display = 'none';
+    const btn = document.getElementById('btn-add-microsoft');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    if (!AppState.accounts.find(a => a.name === acc.username)) {
+        AppState.accounts.push({ name: acc.username, type: 'microsoft' });
+        localStorage.setItem('afk_accounts', JSON.stringify(AppState.accounts));
+        renderAccounts();
+    }
+    showToast(t('toast-account-linked-title'), t('toast-account-linked-msg').replace('${username}', acc.username), 'success');
+});
+
+socket.on('microsoft-auth-error', (err) => {
+    const waitingModal = document.getElementById('waiting-modal');
+    waitingModal.style.display = 'none';
+    const btn = document.getElementById('btn-add-microsoft');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    showToast(t('toast-auth-error-title'), err, 'error');
+});
+
+socket.on('init-bots', (serverBots) => {
+    serverBots.forEach(b => {
+        AppState.bots[b.id] = { 
+            name: b.settings.username, 
+            type: b.settings.auth, 
+            status: b.status, 
+            proxy: b.settings.proxy || 'Direct', 
+            viewerPort: b.viewerPort, 
+            host: b.settings.host || '?' 
+        };
+    });
+    renderBotTable();
+});
+
+socket.on('bot-added', ({ id, settings }) => {
+    AppState.bots[id] = { 
+        name: settings.username || settings.name, 
+        type: settings.auth, 
+        status: 'Starting...',
+        proxy: settings.proxy || 'Direct', 
+        viewerPort: null, 
+        host: settings.host || '?' 
+    };
+    renderBotTable();
+});
+
+socket.on('open-auth-url', (url) => {
+    window.open(url, '_blank');
+});
+
+socket.on('bot-status', ({ id, status }) => {
+    if (AppState.bots[id]) { 
+        AppState.bots[id].status = status; 
+        renderBotTable(); 
+    }
+});
+
+socket.on('bot-removed', (id) => {
+    delete AppState.bots[id];
+    renderBotTable();
+});
+
+socket.on('viewer-started', ({ id, port }) => {
+    if (AppState.bots[id]) { 
+        AppState.bots[id].viewerPort = port; 
+        showToast(t('toast-viewer-ready-title'), t('toast-viewer-ready-msg').replace('${port}', port), 'success'); 
+        if (AppState.currentBotIdContext === id) openBotPanel(id); 
+    }
+});
+
+socket.on('log', (msg) => {
+    const clean = msg.replace(/§[0-9a-fk-or]/gi, '');
+    if (document.getElementById('modal-bot-control').classList.contains('show')) appendToTerminal(clean);
+});
+
+socket.on('msa-username-resolved', ({ id, username }) => {
+    if (AppState.bots[id]) { 
+        AppState.bots[id].name = username; 
+        renderBotTable(); 
+    }
+});
+
+socket.on('server-message', ({ botId, message }) => {
+    addServerMessage(botId, message);
+});
+
+socket.on('inventory-data', ({ id, items }) => {
+    if (currentInventoryBotId === id) {
+        renderInventory(items);
+    }
+});
+
+socket.on('inventory-error', ({ id, error }) => {
+    if (currentInventoryBotId === id) {
+        document.getElementById('inventory-content').innerHTML = `<div style="text-align:center;padding:40px;color:var(--red);"><i class="fas fa-exclamation-triangle"></i> ${error}</div>`;
+        document.getElementById('drop-all-btn').style.display = 'none';
+    }
+});
+
+// ===== EVENTOS DE SEGUIMIENTO (FOLLOW) =====
+socket.on('follow-started', ({ id, targetUsername }) => {
+    if (AppState.bots[id]) {
+        AppState.bots[id].status = `Following ${targetUsername}`;
+        renderBotTable();
+    }
+});
+
+socket.on('follow-stopped', ({ id }) => {
+    if (AppState.bots[id]) {
+        AppState.bots[id].status = 'Online';
+        renderBotTable();
+    }
+});
+
+// ========== UI Toggle para mensajes del servidor ==========
+const toggleBtn = document.getElementById('toggle-server-msgs');
+toggleBtn.addEventListener('click', () => {
+    AppState.showServerMessages = !AppState.showServerMessages;
+    const span = toggleBtn.querySelector('span');
+    if (span) {
+        span.innerHTML = t(AppState.showServerMessages ? 'hide-server-msgs' : 'show-server-msgs');
+    } else {
+        toggleBtn.innerHTML = AppState.showServerMessages ?
+            '<i class="fas fa-comment-slash"></i> ' + t('hide-server-msgs') :
+            '<i class="fas fa-comment-dots"></i> ' + t('show-server-msgs');
+    }
+    showToast(t('toast-info-title'), AppState.showServerMessages ? t('showing-server-msgs') : t('hiding-server-msgs'), 'info');
+});
+
+// ========== Switch offline handler ==========
+document.getElementById('include-offline-switch').addEventListener('change', function(e) {
+    document.getElementById('offline-info').classList.toggle('show', this.checked);
+    if (this.checked) updateOfflineAccountsList();
+});
+
+// ========== Inicialización ==========
+function init() {
+    const savedLang = AppState.config.lang || 'en';
+    document.getElementById('setting-lang').value = savedLang;
+    document.getElementById('setting-reconnect').value = AppState.config.reconnect || 'true';
+    document.getElementById('setting-antiafk').value = AppState.config.antiafk || 'look';
+    translateUI(savedLang);
+    renderAccounts();
+    renderProxies();
+    document.getElementById('stat-proxies').innerText = AppState.proxies.length;
+    // Cargar nick del dueño guardado
+    const savedOwnerNick = localStorage.getItem('afk_owner_nick');
+    if (savedOwnerNick) {
+        document.getElementById('owner-nick').value = savedOwnerNick;
+    }
+    // Cargar config de Discord guardada
+    loadDiscordConfig();
+}
+init();
+</script>
+</body>
+</html>

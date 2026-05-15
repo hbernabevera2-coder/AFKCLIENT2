@@ -1,0 +1,9 @@
+mineflayer
+prismarine-viewer
+electron
+express
+socket.io
+axios
+msal-node
+canvas
+prismarine-auth
